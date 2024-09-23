@@ -9,7 +9,7 @@ const Subtask = ({ parentTaskId }) => {
   useEffect(() => {
     const fetchSubtasks = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/task/subtasks/?parent_task_id=${parentTaskId}`);
+        const response = await fetch(`https://task-management-mstv.onrender.com/task/subtasks/?parent_task_id=${parentTaskId}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -32,15 +32,14 @@ const Subtask = ({ parentTaskId }) => {
     const [movedItem] = updatedSubtasks.splice(result.source.index, 1);
     updatedSubtasks.splice(result.destination.index, 0, movedItem);
 
-    setSubtasks(updatedSubtasks);
-    
+    setSubtasks(updatedSubtasks); 
   };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div>
+    <div  style={{marginBottom:"50px"}}>
       <h3>All Subtasks Show: {subtasks.length}</h3>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="subtaskList">
@@ -55,7 +54,7 @@ const Subtask = ({ parentTaskId }) => {
                       {...provided.dragHandleProps}
                       style={{
                         ...provided.draggableProps.style,
-                        padding: '10px',
+                        padding: '5px',
                         marginBottom: '8px',
                         backgroundColor: '#f9f9f9',
                         borderRadius: '4px',

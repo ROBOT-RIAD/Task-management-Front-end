@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import { Alert } from 'reactstrap';
 import axios from 'axios';
 import Spinner from '../Spinner/Spinner';
-import log from '../../assets/image/6333040.jpg';
+import log from '../../assets/image/4794658.jpg';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,8 +30,8 @@ const Auth = () => {
         setAuthLoading(true);
         const authData = { email: values.email, password: values.password };
         const authUrl = mode === "Sign Up"
-            ? "http://127.0.0.1:8000/account/users/"
-            : "http://127.0.0.1:8000/account/token/";
+            ? "https://task-management-mstv.onrender.com/account/users/"
+            : "https://task-management-mstv.onrender.com/account/token/";
 
         axios.post(authUrl, authData)
             .then(response => {

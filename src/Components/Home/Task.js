@@ -6,15 +6,15 @@ const Task = () => {
   const [tasks, setTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showSubtaskModal, setShowSubtaskModal] = useState(false); 
-  const [newSubtask, setNewSubtask] = useState({ title: '', description: '' }); 
+  const [showSubtaskModal, setShowSubtaskModal] = useState(false);
+  const [newSubtask, setNewSubtask] = useState({ title: '', description: '' });
   const userId = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (token) {
       axios
-        .get(`http://127.0.0.1:8000/task/all/?created_by_id=${userId}`, {
+        .get(`https://task-management-mstv.onrender.com/task/all/?created_by_id=${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -32,7 +32,7 @@ const Task = () => {
 
   const handleDetailClick = (taskId) => {
     axios
-      .get(`http://127.0.0.1:8000/task/all/${taskId}/`, {
+      .get(`https://task-management-mstv.onrender.com/task/all/${taskId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -68,10 +68,10 @@ const Task = () => {
     if (selectedTask && token) {
       axios
         .post(
-          `http://127.0.0.1:8000/task/subtasks/?parent_task_id=${selectedTask.id}`,
+          `https://task-management-mstv.onrender.com/task/subtasks/?parent_task_id=${selectedTask.id}`,
           {
             ...newSubtask,
-            parent_task: selectedTask.id, 
+            parent_task: selectedTask.id,
           },
           {
             headers: {
@@ -81,11 +81,17 @@ const Task = () => {
         )
         .then((response) => {
           console.log('Subtask added:', response.data);
-          setShowSubtaskModal(false); 
+          setSelectedTask((prevTask) => ({
+            ...prevTask,
+            subtasks: [...(prevTask.subtasks || []), response.data], 
+          }));
+          setShowSubtaskModal(false);
+          setNewSubtask({ title: '', description: '' }); 
         })
         .catch((error) => {
           console.error('Error adding subtask:', error);
         });
+        window.location.reload();
     }
   };
 
@@ -114,11 +120,10 @@ const Task = () => {
     top: '0',
     left: '0',
     width: '100%',
-    height: '100%',
+    
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: '1000',
   };
 
   const modalContentStyle = {
@@ -128,7 +133,6 @@ const Task = () => {
     width: '1000px',
     margin: 'auto',
     marginTop: '20px',
-    position: 'relative',
   };
 
   return (
@@ -179,15 +183,30 @@ const Task = () => {
                 >
                   Add subtask
                 </button>
+                <div
+                style={{
+                  maxHeight: '300px', 
+                  overflowY: 'auto', 
+                  marginTop: '20px', 
+                  padding: '10px',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  backgroundColor: '#f4f4f4',
+                }} 
+                >
                 <Subtask parentTaskId={selectedTask.id} />
+                </div>
                 <button
                   onClick={closeModal}
                   style={{
-                    padding: '10px',
-                    background: '#0a0a22',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
+                    marginTop: '20px',
+              padding: '10px',
+              background: '#0a0a22',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              width: '100%',
+              cursor: 'pointer',
                   }}
                 >
                   Close
@@ -198,86 +217,85 @@ const Task = () => {
         </div>
       )}
 
-{showSubtaskModal && (
-  <div style={modalStyle} onClick={() => setShowSubtaskModal(false)}>
-    <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-      <h3>Add Subtask</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <input
-          type='text'
-          name='title'
-          placeholder='Subtask Title'
-          value={newSubtask.title}
-          onChange={handleSubtaskChange}
-          style={{
-            padding: '10px',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            width: '100%',
-            fontSize: '16px',
-            outline: 'none',
-            transition: 'border 0.3s ease',
-          }}
-        />
-        <textarea
-          name='description'
-          placeholder='Subtask Description'
-          value={newSubtask.description}
-          onChange={handleSubtaskChange}
-          rows={4}
-          style={{
-            padding: '10px',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            width: '100%',
-            fontSize: '16px',
-            outline: 'none',
-            transition: 'border 0.3s ease',
-          }}
-        />
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button
-            style={{
-              padding: '10px',
-              background: '#0a0a22',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              width: '100%',
-              fontSize: '16px',
-              transition: 'background 0.3s ease',
-            }}
-            onClick={handleSubtaskSubmit}
-            onMouseOver={(e) => (e.target.style.background = '#1a1a33')}
-            onMouseOut={(e) => (e.target.style.background = '#0a0a22')}
-          >
-            Save Subtask
-          </button>
-          <button
-            style={{
-              padding: '10px',
-              background: '#0a0a22',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              width: '100%',
-              fontSize: '16px',
-              transition: 'background 0.3s ease',
-            }}
-            onClick={() => setShowSubtaskModal(false)}
-            onMouseOver={(e) => (e.target.style.background = '#1a1a33')}
-            onMouseOut={(e) => (e.target.style.background = '#0a0a22')}
-          >
-            Cancel
-          </button>
+      {showSubtaskModal && (
+        <div style={modalStyle}  onClick={() => setShowSubtaskModal(false)}>
+          <div style={modalContentStyle}  onClick={(e) => e.stopPropagation()}>
+            <h3>Add Subtask</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <input
+                type='text'
+                name='title'
+                placeholder='Subtask Title'
+                value={newSubtask.title}
+                onChange={handleSubtaskChange}
+                style={{
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  width: '100%',
+                  fontSize: '16px',
+                  outline: 'none',
+                  transition: 'border 0.3s ease',
+                }}
+              />
+              <textarea
+                name='description'
+                placeholder='Subtask Description'
+                value={newSubtask.description}
+                onChange={handleSubtaskChange}
+                rows={4}
+                style={{
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  width: '100%',
+                  fontSize: '16px',
+                  outline: 'none',
+                  transition: 'border 0.3s ease',
+                }}
+              />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  style={{
+                    padding: '10px',
+                    background: '#0a0a22',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    width: '100%',
+                    fontSize: '16px',
+                    transition: 'background 0.3s ease',
+                  }}
+                  onClick={handleSubtaskSubmit}
+                  onMouseOver={(e) => (e.target.style.background = '#1a1a33')}
+                  onMouseOut={(e) => (e.target.style.background = '#0a0a22')}
+                >
+                  Save Subtask
+                </button>
+                <button
+                  style={{
+                    padding: '10px',
+                    background: '#0a0a22',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    width: '100%',
+                    fontSize: '16px',
+                    transition: 'background 0.3s ease',
+                  }}
+                  onClick={() => setShowSubtaskModal(false)}
+                  onMouseOver={(e) => (e.target.style.background = '#1a1a33')}
+                  onMouseOut={(e) => (e.target.style.background = '#0a0a22')}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };

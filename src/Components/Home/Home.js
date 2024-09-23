@@ -29,7 +29,7 @@ const Home = () => {
       created_by: userId
     };
 
-    fetch('http://127.0.0.1:8000/task/all/', {
+    fetch('https://task-management-mstv.onrender.com/task/all/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
